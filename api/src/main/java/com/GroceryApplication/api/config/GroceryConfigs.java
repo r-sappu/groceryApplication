@@ -21,7 +21,7 @@ public class GroceryConfigs {
 	
 	@Bean
 	public SecurityFilterChain filter(HttpSecurity httpSecurity) throws Exception {
-		httpSecurity.csrf().disable().authorizeHttpRequests((requests)->requests
+		httpSecurity.csrf( csrf -> csrf.disable()).authorizeHttpRequests((requests)->requests
 				.requestMatchers(HttpMethod.GET,"/grocery/getItems").hasAnyRole("ADMIN","USER")
 				.requestMatchers(HttpMethod.GET,"/grocery/getInventoryDetails").hasRole("ADMIN")
 				.requestMatchers(HttpMethod.POST,"/grocery/addItems", "/grocery/updateItem", "/grocery/removeItems/**").hasRole("ADMIN")
