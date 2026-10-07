@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Local API Tester</title>
+
+<style>
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        padding: 30px;
+        font-family: Arial, Helvetica, sans-serif;
+        background: #f4f6f8;
+        color: #1f2937;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: auto;
+    }
+
+    /* ================= HEADER ================= */
+
+    .header {
+        background: #1f2937;
+        color: white;
+        padding: 25px 30px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    .header h1 {
+        margin: 0 0 8px 0;
+        font-size: 28px;
+    }
+
+    .header p {
+        margin: 0;
+        color: #d1d5db;
+    }
+
+    /* ================= LANGUAGE SETTINGS ================= */
+
+    .settings {
+        background: white;
+        padding: 18px 22px;
+        border-radius: 10px;
+        margin-bottom: 22px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .language-options {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+    }
+
+    .language-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .language-option input {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        margin: 0;
+    }
+
+    .language-info {
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+    /* ================= API GRID ================= */
+
+    .api-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 22px;
+    }
+
+    /* ================= API CARD ================= */
+
+    .api-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+        min-width: 0;
+    }
+
+    .api-card h2 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-size: 21px;
+    }
+
+    /* ================= ENDPOINT ================= */
+
+    .endpoint {
+        font-family: Consolas, "Courier New", monospace;
+        background: #f3f4f6;
+        padding: 8px 12px;
+        border-radius: 6px;
+        display: inline-block;
+        color: #374151;
+        font-size: 13px;
+        margin-bottom: 18px;
+        word-break: break-all;
+    }
+
+    /* ================= BUTTON ================= */
+
+    button {
+        border: none;
+        padding: 10px 20px;
+        border-radius: 7px;
+        background: #2563eb;
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        background: #1d4ed8;
+        transform: translateY(-1px);
+    }
+
+    button:active {
+        transform: translateY(0);
+    }
+
+    /* ================= INPUT ================= */
+
+    .item-input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 7px;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+
+    .item-input:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+    }
+
+    .input-label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 7px;
+    }
+
+    /* ================= RESPONSE ================= */
+
+    .response-container {
+        margin-top: 18px;
+    }
+
+    .response-title {
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .response {
+        background: #111827;
+        color: #e5e7eb;
+        padding: 18px;
+        border-radius: 8px;
+        min-height: 70px;
+        max-height: 350px;
+        overflow: auto;
+
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 13px;
+        line-height: 1.5;
+
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .status-success {
+        color: #86efac;
+        font-weight: bold;
+    }
+
+    .status-error {
+        color: #fca5a5;
+        font-weight: bold;
+    }
+
+    .loading {
+        color: #facc15;
+        font-weight: bold;
+    }
+
+    /* ================= FOOTER ================= */
+
+    .footer {
+        text-align: center;
+        color: #6b7280;
+        font-size: 13px;
+        margin-top: 30px;
+        padding-bottom: 10px;
+    }
+
+    /* ================= RESPONSIVE ================= */
+
+    @media (max-width: 750px) {
+
+        .api-grid {
+            grid-template-columns: 1fr;
+        }
+
+        body {
+            padding: 15px;
+        }
+
+        .header {
+            padding: 20px;
+        }
+
+        .api-card {
+            padding: 20px;
+        }
+
+        .settings {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .language-options {
+            flex-wrap: wrap;
+        }
+    }
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- ================= HEADER ================= -->
+
+<div class="header">
+
+    <h1>Local API Tester</h1>
+
+    <p>
+        Test your Spring Boot Grocery APIs locally
+    </p>
+
+</div>
+
+
+<!-- ================= LANGUAGE SETTINGS ================= -->
+
+<div class="settings">
+
+    <div class="language-options">
+
+        <label class="language-option">
+
+            <input
+                    type="checkbox"
+                    id="germanLanguage"
+                    onchange="selectLanguage('de')"
+            >
+
+            German
+
+        </label>
+
+
+        <label class="language-option">
+
+            <input
+                    type="checkbox"
+                    id="frenchLanguage"
+                    onchange="selectLanguage('fr')"
+            >
+
+            French
+
+        </label>
+
+    </div>
+
+
+    <div
+            class="language-info"
+            id="languageStatus"
+    >
+        No language selected
+    </div>
+
+</div>
+
+
+<!-- ================= API GRID ================= -->
+
+<div class="api-grid">
+
+
+    <!-- =====================================================
+         GET ITEMS
+    ====================================================== -->
+
+    <div class="api-card">
+
+        <h2>Get Items</h2>
+
+        <div class="endpoint">
+            GET /grocery/getItems
+        </div>
+
+        <br>
+
+        <button onclick="callApi()">
+            Call API
+        </button>
+
+        <div class="response-container">
+
+            <div class="response-title">
+                Response
+            </div>
+
+            <pre
+                    id="result"
+                    class="response"
+            ></pre>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         ADD ITEMS
+    ====================================================== -->
+
+    <div class="api-card">
+
+        <h2>Add Items</h2>
+
+        <div class="endpoint">
+            POST /grocery/addItems
+        </div>
+
+        <br>
+
+        <button onclick="callApiPut()">
+            Call API
+        </button>
+
+        <div class="response-container">
+
+            <div class="response-title">
+                Response
+            </div>
+
+            <pre
+                    id="resultPut"
+                    class="response"
+            ></pre>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         GET INVENTORY
+    ====================================================== -->
+
+    <div class="api-card">
+
+        <h2>Get Inventory</h2>
+
+        <div class="endpoint">
+            GET /grocery/getInventoryDetails
+        </div>
+
+        <br>
+
+        <button onclick="callApiInventory()">
+            Call API
+        </button>
+
+        <div class="response-container">
+
+            <div class="response-title">
+                Response
+            </div>
+
+            <pre
+                    id="resultInv"
+                    class="response"
+            ></pre>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         REMOVE ITEM
+    ====================================================== -->
+
+    <div class="api-card">
+
+        <h2>Remove Item</h2>
+
+        <div class="endpoint">
+            POST /grocery/removeItems/{item}
+        </div>
+
+        <label
+                class="input-label"
+                for="item"
+        >
+            Item to be Removed
+        </label>
+
+        <input
+                class="item-input"
+                type="text"
+                id="item"
+                placeholder="Enter item name"
+        >
+
+        <br>
+
+        <button onclick="callApiRemove()">
+            Remove Item
+        </button>
+
+        <div class="response-container">
+
+            <div class="response-title">
+                Response
+            </div>
+
+            <pre
+                    id="resultREM"
+                    class="response"
+            ></pre>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<!-- ================= FOOTER ================= -->
+
+<div class="footer">
+    Spring Boot Local API Tester
+</div>
+
+</div>
+
+<script>
+
+    // =========================================================
+    // BASIC AUTH
+    // =========================================================
+
+    const AUTHORIZATION =
+        "Basic cm9oaXQ6c2FwcHU=";
+
+
+    // =========================================================
+    // LANGUAGE SELECTION
+    // =========================================================
+
+    function selectLanguage(language) {
+
+        const germanCheckbox =
+            document.getElementById("germanLanguage");
+
+        const frenchCheckbox =
+            document.getElementById("frenchLanguage");
+
+        const languageStatus =
+            document.getElementById("languageStatus");
+
+
+        if (language === "de") {
+
+            if (germanCheckbox.checked) {
+
+                // Uncheck French
+                frenchCheckbox.checked = false;
+
+                languageStatus.textContent =
+                    "German selected";
+
+            } else {
+
+                languageStatus.textContent =
+                    "No language selected";
+            }
+        }
+
+
+        if (language === "fr") {
+
+            if (frenchCheckbox.checked) {
+
+                // Uncheck German
+                germanCheckbox.checked = false;
+
+                languageStatus.textContent =
+                    "French selected";
+
+            } else {
+
+                languageStatus.textContent =
+                    "No language selected";
+            }
+        }
+
+    }
+
+
+    // =========================================================
+    // GET LANGUAGE PARAMETER
+    // =========================================================
+
+    function getLanguageParameter() {
+
+        const germanCheckbox =
+            document.getElementById("germanLanguage");
+
+        const frenchCheckbox =
+            document.getElementById("frenchLanguage");
+
+
+        if (germanCheckbox.checked) {
+
+            return "?lang=de";
+
+        }
+
+
+        if (frenchCheckbox.checked) {
+
+            return "?lang=fr";
+
+        }
+
+
+        return "";
+    }
+
+
+    // =========================================================
+    // FORMAT RESPONSE
+    // =========================================================
+
+    function displayResponse(
+        element,
+        response,
+        responseBody
+    ) {
+
+        let formattedBody =
+            responseBody;
+
+
+        try {
+
+            const json =
+                JSON.parse(responseBody);
+
+            formattedBody =
+                JSON.stringify(
+                    json,
+                    null,
+                    4
+                );
+
+        } catch (error) {
+
+            // Response is not JSON.
+            // Display as normal text.
+
+        }
+
+
+        const statusClass =
+            response.ok
+                ? "status-success"
+                : "status-error";
+
+
+        element.innerHTML =
+            '<span class="' +
+            statusClass +
+            '">' +
+            'HTTP Status: ' +
+            response.status +
+            ' ' +
+            response.statusText +
+            '</span>\n\n' +
+            escapeHtml(formattedBody);
+    }
+
+
+    // =========================================================
+    // ESCAPE HTML
+    // =========================================================
+
+    function escapeHtml(text) {
+
+        return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+
+    // =========================================================
+    // GET ITEMS
+    // =========================================================
+
+    async function callApi() {
+
+        const result =
+            document.getElementById("result");
+
+
+        result.innerHTML =
+            '<span class="loading">' +
+            'Calling API...' +
+            '</span>';
+
+
+        const url =
+            "http://localhost:9999/grocery/getItems" +
+            getLanguageParameter();
+
+
+        try {
+
+            const response =
+                await fetch(
+                    url,
+                    {
+                        method: "GET",
+
+                        headers: {
+
+                            "Authorization":
+                                AUTHORIZATION,
+
+                            "Accept":
+                                "application/json"
+                        }
+                    }
+                );
+
+
+            const responseBody =
+                await response.text();
+
+
+            displayResponse(
+                result,
+                response,
+                responseBody
+            );
+
+
+        } catch (error) {
+
+            result.innerHTML =
+                '<span class="status-error">' +
+                'Error: ' +
+                escapeHtml(error.message) +
+                '</span>';
+
+            console.error(error);
+        }
+    }
+
+
+    // =========================================================
+    // ADD ITEMS
+    // =========================================================
+
+    async function callApiPut() {
+
+        const resultPut =
+            document.getElementById("resultPut");
+
+
+        resultPut.innerHTML =
+            '<span class="loading">' +
+            'Calling API...' +
+            '</span>';
+
+
+        const url =
+            "http://localhost:9999/grocery/addItems" +
+            getLanguageParameter();
+
+
+        try {
+
+            const response =
+                await fetch(
+                    url,
+                    {
+                        method: "POST",
+
+                        headers: {
+
+                            "Authorization":
+                                AUTHORIZATION,
+
+                            "Accept":
+                                "application/json",
+
+                            "Content-Type":
+                                "application/json"
+                        },
+
+
+                        body: JSON.stringify({
+
+                            "GroceryDetails": [
+
+                                {
+                                    "name": "Milk",
+                                    "quantity": 500,
+                                    "unit": 3,
+                                    "price": 130,
+                                    "info": "Sudha Milk"
+                                },
+
+                                {
+                                    "name": "Honey",
+                                    "quantity": 100,
+                                    "unit": 5,
+                                    "price": 250,
+                                    "info": "Dabur Honey"
+                                }
+
+                            ]
+
+                        })
+                    }
+                );
+
+
+            const responseBody =
+                await response.text();
+
+
+            displayResponse(
+                resultPut,
+                response,
+                responseBody
+            );
+
+
+        } catch (error) {
+
+            resultPut.innerHTML =
+                '<span class="status-error">' +
+                'Error: ' +
+                escapeHtml(error.message) +
+                '</span>';
+
+            console.error(error);
+        }
+    }
+
+
+    // =========================================================
+    // GET INVENTORY
+    // =========================================================
+
+    async function callApiInventory() {
+
+        const resultInv =
+            document.getElementById("resultInv");
+
+
+        resultInv.innerHTML =
+            '<span class="loading">' +
+            'Calling API...' +
+            '</span>';
+
+
+        const url =
+            "http://localhost:9999/grocery/getInventoryDetails" +
+            getLanguageParameter();
+
+
+        try {
+
+            const response =
+                await fetch(
+                    url,
+                    {
+                        method: "GET",
+
+                        headers: {
+
+                            "Authorization":
+                                AUTHORIZATION,
+
+                            "Accept":
+                                "application/json"
+                        }
+                    }
+                );
+
+
+            const responseBody =
+                await response.text();
+
+
+            displayResponse(
+                resultInv,
+                response,
+                responseBody
+            );
+
+
+        } catch (error) {
+
+            resultInv.innerHTML =
+                '<span class="status-error">' +
+                'Error: ' +
+                escapeHtml(error.message) +
+                '</span>';
+
+            console.error(error);
+        }
+    }
+
+
+    // =========================================================
+    // REMOVE ITEM
+    // =========================================================
+
+    async function callApiRemove() {
+
+        const item =
+            document.getElementById("item")
+                .value
+                .trim();
+
+
+        const resultREM =
+            document.getElementById("resultREM");
+
+
+        if (!item) {
+
+            resultREM.innerHTML =
+                '<span class="status-error">' +
+                'Please enter an item name.' +
+                '</span>';
+
+            return;
+        }
+
+
+        resultREM.innerHTML =
+            '<span class="loading">' +
+            'Calling API...' +
+            '</span>';
+
+
+        const url =
+            "http://localhost:9999/grocery/removeItems/" +
+            encodeURIComponent(item) +
+            getLanguageParameter();
+
+
+        try {
+
+            const response =
+                await fetch(
+                    url,
+                    {
+                        method: "POST",
+
+                        headers: {
+
+                            "Authorization":
+                                AUTHORIZATION,
+
+                            "Accept":
+                                "application/json"
+                        }
+                    }
+                );
+
+
+            const responseBody =
+                await response.text();
+
+
+            displayResponse(
+                resultREM,
+                response,
+                responseBody
+            );
+
+
+        } catch (error) {
+
+            resultREM.innerHTML =
+                '<span class="status-error">' +
+                'Error: ' +
+                escapeHtml(error.message) +
+                '</span>';
+
+            console.error(error);
+        }
+    }
+
+</script>
+
+</body>
+
+</html>

@@ -1,13 +1,12 @@
 package com.GroceryApplication.api.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
 //import com.GroceryApplication.api.controller.GroceryController;
@@ -29,7 +28,11 @@ public class GroceryService {
 	
 	@Autowired
 	private GroceryRepo groceryRepo;
-	
+
+    @Autowired
+    private MessageSource messageSource;
+
+//    Locale locale = LocaleContextHolder.getLocale();
 	//For getting all the items name
 	public List<String> getItems(){
 		List<Grocery> g=groceryRepo.findAll();
@@ -42,7 +45,7 @@ public class GroceryService {
 	
 	//Adding a new Item to database
 	public Map<String,String> addItems(Request req) {
-		
+
 		List<GroceryDetails> list=req.getGroceryDetails();
 		Map<String,String> map=new HashMap<>();
 		
@@ -59,7 +62,7 @@ public class GroceryService {
 				groceryRepo.save(gnew);
 				
 				logger.info(gc.getName()+" added to database.");
-				map.put(gc.getName(), "Successfully added new item.");
+				map.put(gc.getName(), messageSource.getMessage("add.new.success", null, LocaleContextHolder.getLocale()));
 			}else {
 				
 				logger.info(gc.getName()+" : Item found and units will be added");
@@ -68,7 +71,7 @@ public class GroceryService {
 				g.setUnit(newUnit);
 				groceryRepo.save(g);
 
-				map.put(gc.getName(), "Successfully added units.");
+				map.put(gc.getName(), messageSource.getMessage("add.success", null, LocaleContextHolder.getLocale()));
 			}
 			
 		}
@@ -98,13 +101,12 @@ public class GroceryService {
 		
 		Grocery g=groceryRepo.findByName(req);
 		if(g==null) {
-			logger.info(req+" : Item not Present.");
-			return "Item not Present.";
+			throw new RuntimeException("Item not present.");
 		}	
 		else {
 			logger.info(g.getName()+" : Item found and will be deleted.");
 			groceryRepo.delete(g);
-			return "Item has been removed.";
+			return messageSource.getMessage("remove.success", null, LocaleContextHolder.getLocale());
 		}
 	}
 	

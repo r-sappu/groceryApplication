@@ -6,6 +6,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,6 +14,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebSecurity
@@ -21,8 +24,10 @@ public class GroceryConfigs {
 	
 	@Bean
 	public SecurityFilterChain filter(HttpSecurity httpSecurity) throws Exception {
-		httpSecurity.csrf( csrf -> csrf.disable()).authorizeHttpRequests((requests)->requests
-				.requestMatchers(HttpMethod.GET,"/grocery/getItems").hasAnyRole("ADMIN","USER")
+		httpSecurity.cors(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests((requests)->requests
+				.requestMatchers(HttpMethod.GET,"/grocery/**").hasAnyRole("ADMIN","USER")
 				.requestMatchers(HttpMethod.GET,"/grocery/getInventoryDetails").hasRole("ADMIN")
 				.requestMatchers(HttpMethod.POST,"/grocery/addItems", "/grocery/updateItem", "/grocery/removeItems/**").hasRole("ADMIN")
 				.requestMatchers(HttpMethod.POST,"/grocery/order").hasRole("USER")
@@ -52,6 +57,20 @@ public class GroceryConfigs {
 	@Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                        .allowedOriginPatterns("*")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*");
+            }
+        };
     }
 	
 }
